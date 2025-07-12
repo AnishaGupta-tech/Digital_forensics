@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORGESCAN | Forensic Analysis Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --primary: #00ff9d;
+            --secondary: #00e1ff;
+            --danger: #ff3860;
+            --warning: #ffcc00;
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --light: #f8f9fa;
+            --gray: #2b2b2b;
+            --court-blue: #1a3e72;
+            --court-gold: #d4af37;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        /* Modern Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 157, 0.1);
+            box-shadow: 0 5px 30px rgba(0,0,0,0.5);
+        }
+        
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-cta {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+            font-size: 0.95rem;
+        }
+        
+        .nav-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.5);
+        }
+        
+        /* Report Section */
+        .report-section {
+            padding: 8rem 5% 5rem;
+            background-color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .section-header h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        .section-header p {
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .report-card {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 255, 157, 0.1);
+        }
+        
+        .report-title {
+            font-size: 1.8rem;
+            color: var(--light);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .report-meta {
+            text-align: right;
+        }
+        
+        .report-meta p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .analysis-card {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 12px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .analysis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,255,157,0.05), rgba(0,225,255,0.05));
+            z-index: 0;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 15px 30px rgba(0, 255, 157, 0.2);
+        }
+        
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .analysis-icon {
+            font-size: 1.8rem;
+            margin-right: 1.2rem;
+            color: var(--primary);
+            background: rgba(0,255,157,0.1);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+        
+        .analysis-title {
+            font-size: 1.4rem;
+            color: var(--light);
+            font-weight: 600;
+        }
+        
+        .analysis-content {
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .analysis-verdict {
+            font-weight: 700;
+            margin: 0.5rem 0 1rem;
+            font-size: 1.1rem;
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: rgba(0,255,157,0.1);
+        }
+        
+        .authentic {
+            color: var(--primary);
+            background: rgba(0,255,157,0.1) !important;
+        }
+        
+        .forged {
+            color: var(--danger);
+            background: rgba(255,56,96,0.1) !important;
+        }
+        
+        .suspicious {
+            color: var(--warning);
+            background: rgba(255,204,0,0.1) !important;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .metric-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: rgba(0,255,157,0.2);
+        }
+        
+        .metric-name {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            color: var(--light);
+            font-size: 1.2rem;
+        }
+        
+        .confidence-meter {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .confidence-level {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 1.5s ease-out;
+        }
+        
+        .forged .confidence-level {
+            background: linear-gradient(90deg, var(--danger), #ff6b8b);
+        }
+        
+        .suspicious .confidence-level {
+            background: linear-gradient(90deg, var(--warning), #ffde59);
+        }
+        
+        .verdict-section {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 2.5rem;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .verdict-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,255,157,0.05), rgba(0,225,255,0.05));
+            z-index: 0;
+        }
+        
+        .verdict-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .verdict-icon {
+            font-size: 2.5rem;
+            margin-right: 1.5rem;
+            color: var(--primary);
+            background: rgba(0,255,157,0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+        }
+        
+        .verdict-title {
+            font-size: 2rem;
+            color: var(--light);
+            font-weight: 700;
+        }
+        
+        .verdict-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+            font-size: 1.05rem;
+        }
+        
+        .verdict-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-item {
+            text-align: center;
+            min-width: 180px;
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: rgba(0,255,157,0.3);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .authentic .stat-value {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .forged .stat-value {
+            background: linear-gradient(90deg, var(--danger), #ff6b8b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .suspicious .stat-value {
+            background: linear-gradient(90deg, var(--warning), #ffde59);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .indicators {
+            margin-top: 2.5rem;
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .indicators h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .indicators h3 i {
+            margin-right: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .indicators ul {
+            padding-left: 1.5rem;
+        }
+        
+        .indicators li {
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        .indicators li::before {
+            content: '•';
+            color: var(--secondary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            padding: 14px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn i {
+            margin-right: 0.8rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.6);
+        }
+        
+        .btn-container {
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        /* Charts */
+        .chart-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title i {
+            margin-right: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        /* Model Status */
+        .model-status {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .model-status h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .model-status h3 i {
+            margin-right: 0.8rem;
+            color: var(--primary);
+        }
+        
+        .model-status-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .model-item {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .model-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .model-item i {
+            margin-right: 0.8rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        /* Court Submission Section */
+        .court-submission {
+            background: rgba(26, 62, 114, 0.2);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            border-left: 5px solid var(--court-gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .court-submission::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 62, 114, 0.1), rgba(212, 175, 55, 0.1));
+            z-index: 0;
+        }
+        
+        .court-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .court-icon {
+            font-size: 2.5rem;
+            margin-right: 1.5rem;
+            color: var(--court-gold);
+            background: rgba(212, 175, 55, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+        }
+        
+        .court-title {
+            font-size: 1.8rem;
+            color: var(--light);
+            font-weight: 700;
+        }
+        
+        .court-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+            font-size: 1.05rem;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(90deg, var(--court-gold), #e8c352);
+            color: var(--dark);
+            padding: 14px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+        }
+        
+        .download-btn i {
+            margin-right: 0.8rem;
+        }
+        
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.2);
+            z-index: 0;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .report-section {
+                padding-top: 7rem;
+            }
+            
+            .section-header h2 {
+                font-size: 2.2rem;
+            }
+            
+            .report-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            
+            .report-meta {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .verdict-header, .court-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            
+            .verdict-icon, .court-icon {
+                margin-right: 0;
+            }
+            
+            .stat-item {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .report-title {
+                font-size: 1.5rem;
+            }
+            
+            .analysis-card, .verdict-section, .court-submission {
+                padding: 1.5rem;
+            }
+            
+            .btn, .download-btn {
+                width: 100%;
+                padding: 12px 20px;
+            }
+            .model-item {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    gap: 1rem;
+}
+
+.model-item i {
+    font-size: 1.2rem;
+    color: var(--primary);
+    min-width: 24px;
+    text-align: center;
+}
+
+.model-item > div {
+    flex: 1;
+}
+
+.model-value {
+    font-weight: 600;
+    color: var(--light);
+    margin-top: 0.2rem;
+    word-break: break-all;
+}
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navbar -->
+    <nav class="navbar">
+        <div class="logo-text">FORGESCAN</div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="index.html#tools"><i class="fas fa-tools"></i> Tools</a>
+            <a href="case.html"><i class="fas fa-book"></i> Case Study</a>
+            <a href="analysis.html"><i class="fas fa-search"></i> Analysis</a>
+        </div>
+        <a href="index.html#contact" class="nav-cta"><i class="fas fa-user-plus"></i> Register</a>
+    </nav>
+    
+    <!-- Report Section -->
+    <section class="report-section">
+        <div class="section-header">
+            <h2>Forensic Analysis Report</h2>
+            <p>Comprehensive document authentication results with detailed forensic markers analysis, prepared for court submission</p>
+        </div>
+        
+        <div class="report-container">
+            <div class="report-card">
+                <div class="report-header">
+                    <h2 class="report-title">FORGESCAN OFFICIAL REPORT</h2>
+                    <div class="report-meta">
+                        <p><i class="fas fa-fingerprint"></i> Case #<span id="caseNumber">Loading...</span></p>
+                        <p><i class="far fa-calendar-alt"></i> <span id="currentDate">Loading...</span></p>
+                        <p style="color: var(--secondary);"><i class="fas fa-lock"></i> Confidential</p>
+                    </div>
+                </div>
+                
+                <div id="report-content">
+                    <div class="section">
+                        <div class="loading-animation" style="text-align: center; padding: 3rem;">
+                            <div style="display: inline-block; position: relative; width: 80px; height: 80px;">
+                                <div style="position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); animation: loading 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;"></div>
+                                <div style="position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--secondary); left: 32px; animation: loading 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite; animation-delay: -0.4s;"></div>
+                                <div style="position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--danger); left: 64px; animation: loading 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite; animation-delay: -0.2s;"></div>
+                            </div>
+                            <p style="margin-top: 1.5rem; color: rgba(255,255,255,0.7);">Generating forensic analysis report...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="watermark">FORGESCAN v3.2.1 | CONFIDENTIAL</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedData = urlParams.get('data');
+            
+            if (!encodedData) {
+                showError("No report data found. Please submit a document for analysis first.");
+                return;
+            }
+            
+            try {
+                const reportData = JSON.parse(decodeURIComponent(encodedData));
+                displayReport(reportData);
+                
+                // Generate case number and date
+                document.getElementById('caseNumber').textContent = reportData.report_id || `FSC-${Math.floor(100000 + Math.random() * 900000)}`;
+                
+                // Format the date nicely
+                const analysisDate = reportData.analysis_date ? 
+                    new Date(reportData.analysis_date) : new Date();
+                document.getElementById('currentDate').textContent = analysisDate.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneName: 'short'
+                });
+                
+            } catch (e) {
+                showError("Failed to parse report data. The report may be corrupted.");
+                console.error("Error parsing report data:", e);
+            }
+        });
+
+        function showError(message) {
+            document.getElementById('report-content').innerHTML = `
+                <div class="error" style="background: rgba(255, 56, 96, 0.1); padding: 2rem; border-radius: 10px; text-align: center; border-left: 4px solid var(--danger);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: var(--danger); margin-bottom: 1.5rem;"></i>
+                    <h3 style="color: var(--danger); margin-bottom: 1.5rem; font-size: 1.5rem;">Analysis Error</h3>
+                    <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem; line-height: 1.6; font-size: 1.05rem;">${message}</p>
+                    <a href="/analysis.html" class="btn"><i class="fas fa-redo"></i> Try Again</a>
+                </div>
+            `;
+        }
+
+        function displayReport(data) {
+            const container = document.getElementById('report-content');
+            let html = '';
+            
+            // Document Overview
+            html += `
+                <div class="model-status">
+    <h3><i class="fas fa-info-circle"></i> Document Overview</h3>
+    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem; line-height: 1.6;">
+        The submitted document has been analyzed using ${data.models_used?.length || 7} specialized forensic models 
+        examining ${data.markers_analyzed || 17} distinct forensic markers.
+    </p>
+    
+    <div class="model-status-list">
+        <div class="model-item">
+            <i class="fas fa-file-alt"></i> 
+            <div>
+                <div>Document Type</div>
+                <div class="model-value">${data.document_type || 'Unknown'} (${data.file_extension || 'N/A'})</div>
+            </div>
+        </div>
+        <div class="model-item">
+            <i class="fas fa-hashtag"></i> 
+            <div>
+                <div>Hash Value</div>
+                <div class="model-value" style="font-family: monospace; font-size: 0.85rem;">
+                    ${data.file_hash || 'Not available'}
+                </div>
+            </div>
+        </div>
+        <div class="model-item">
+            <i class="fas fa-ruler-combined"></i> 
+            <div>
+                <div>Dimensions</div>
+                <div class="model-value">${data.dimensions || 'Not specified'}</div>
+            </div>
+        </div>
+        <div class="model-item">
+            <i class="fas fa-file-signature"></i> 
+            <div>
+                <div>Pages</div>
+                <div class="model-value">${data.page_count || 1}</div>
+            </div>
+        </div>
+        <div class="model-item">
+            <i class="fas fa-database"></i> 
+            <div>
+                <div>File Size</div>
+                <div class="model-value">${formatFileSize(data.file_size)}</div>
+            </div>
+        </div>
+        <div class="model-item">
+            <i class="fas fa-clock"></i> 
+            <div>
+                <div>Analysis Duration</div>
+                <div class="model-value">${data.analysis_duration || 'Under 30 seconds'}</div>
+            </div>
+        </div>
+    </div>
+</div>
+            `;
+            
+            // Analysis Grid
+            html += `
+                <div class="analysis-grid">
+                    <!-- Signature Analysis -->
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon"><i class="fas fa-signature"></i></div>
+                            <h3 class="analysis-title">Signature Analysis</h3>
+                        </div>
+                        <div id="signatureAnalysis">
+                            ${createAnalysisHTML(data.signature_analysis, 'signature')}
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title"><i class="fas fa-chart-line"></i> Signature Consistency Metrics</div>
+                            <canvas id="signatureChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Ink Analysis -->
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon"><i class="fas fa-pen-fancy"></i></div>
+                            <h3 class="analysis-title">Ink Analysis</h3>
+                        </div>
+                        <div id="inkAnalysis">
+                            ${createAnalysisHTML(data.ink_analysis, 'ink')}
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title"><i class="fas fa-chart-pie"></i> Ink Composition Analysis</div>
+                            <canvas id="inkChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Digital Analysis -->
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon"><i class="fas fa-laptop-code"></i></div>
+                            <h3 class="analysis-title">Digital Analysis</h3>
+                        </div>
+                        <div id="digitalAnalysis">
+                            ${createAnalysisHTML(data.metadata_analysis, 'digital')}
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title"><i class="fas fa-chart-bar"></i> Metadata Integrity</div>
+                            <canvas id="digitalChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Paper Analysis -->
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon"><i class="fas fa-file-alt"></i></div>
+                            <h3 class="analysis-title">Paper Analysis</h3>
+                        </div>
+                        <div id="paperAnalysis">
+                            ${createAnalysisHTML(data.paper_analysis, 'paper')}
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title"><i class="fas fa-chart-area"></i> Paper Fiber Distribution</div>
+                            <canvas id="paperChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Final Verdict
+            if (data.final_verdict) {
+                const isAuthentic = data.final_verdict.verdict.includes('AUTHENTIC');
+                const isSuspicious = data.final_verdict.verdict.includes('SUSPICIOUS');
+                const verdictClass = isAuthentic ? 'authentic' : (isSuspicious ? 'suspicious' : 'forged');
+                
+                html += `
+                    <div class="verdict-section" style="border-left-color: ${isAuthentic ? 'var(--primary)' : (isSuspicious ? 'var(--warning)' : 'var(--danger)')}">
+                        <div class="verdict-header">
+                            <div class="verdict-icon" style="color: ${isAuthentic ? 'var(--primary)' : (isSuspicious ? 'var(--warning)' : 'var(--danger)')}">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h3 class="verdict-title">Final Verdict: ${data.final_verdict.verdict.replace(/_/g, ' ')}</h3>
+                        </div>
+                        <div class="verdict-content">
+                            <p>Our comprehensive forensic analysis has determined that this document is <strong style="color: ${isAuthentic ? 'var(--primary)' : (isSuspicious ? 'var(--warning)' : 'var(--danger)')}">${data.final_verdict.verdict.replace(/_/g, ' ')}</strong> with ${Math.round(data.final_verdict.confidence * 100)}% confidence based on ${data.markers_analyzed || 17} forensic markers.</p>
+                            
+                            ${data.final_verdict.indicators?.length ? `
+                            <div class="indicators">
+                                <h3><i class="fas fa-search-plus"></i> Key Forensic Indicators</h3>
+                                <ul>
+                                    ${data.final_verdict.indicators.map(ind => `<li>${ind}</li>`).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="chart-container">
+                                <div class="chart-title"><i class="fas fa-chart-line"></i> Forensic Markers Analysis</div>
+                                <canvas id="forensicChart" height="250"></canvas>
+                            </div>
+                            
+                            <div class="verdict-stats">
+                                <div class="stat-item ${verdictClass}">
+                                    <div class="stat-label">Overall Confidence</div>
+                                    <div class="stat-value">${Math.round(data.final_verdict.confidence * 100)}%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Signature Match</div>
+                                    <div class="stat-value">${Math.round((data.signature_analysis?.authenticity_score || 0) * 100)}%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Ink Consistency</div>
+                                    <div class="stat-value">${Math.round((data.ink_analysis?.consistency_score || 0) * 100)}%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Metadata Integrity</div>
+                                    <div class="stat-value">${Math.round((1 - (data.metadata_analysis?.tamper_probability || 0)) * 100)}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Court Submission Section
+            html += `
+                <div class="court-submission">
+                    <div class="court-header">
+                        <div class="court-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3 class="court-title">Court Submission Package</h3>
+                    </div>
+                    <div class="court-content">
+                        <p>This forensic analysis report has been prepared according to legal standards for court submission. The complete package includes:</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                            <li style="margin-bottom: 0.8rem;">Detailed forensic analysis report (PDF)</li>
+                            <li style="margin-bottom: 0.8rem;">Supporting technical documentation</li>
+                            <li style="margin-bottom: 0.8rem;">Expert witness statement (if required)</li>
+                            <li>Chain of custody documentation</li>
+                        </ul>
+                    </div>
+                    <a href="#" class="download-btn" id="downloadReport"><i class="fas fa-file-pdf"></i> Download Complete Report</a>
+                </div>
+            `;
+            
+            // Back button
+            html += `
+                <div class="btn-container">
+                    <a href="/analysis.html" class="btn"><i class="fas fa-redo"></i> Analyze Another Document</a>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            
+            // Initialize charts after content is loaded
+            initializeCharts(data);
+            
+            // Add animations
+            animateReport();
+            
+            // Set up download button
+            document.getElementById('downloadReport')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                generatePDF();
+            });
+        }
+
+        function createAnalysisHTML(analysis, type) {
+            if (!analysis || analysis.error) {
+                return `
+                    <div class="analysis-content">
+                        <div class="analysis-verdict forged">
+                            <i class="fas fa-exclamation-circle"></i> Analysis Failed
+                        </div>
+                        <p style="color: rgba(255,255,255,0.7);">Could not complete ${type} analysis due to insufficient data or technical error.</p>
+                    </div>
+                `;
+            }
+            
+            const score = analysis.score || analysis.authenticity_score || analysis.consistency_score || 0;
+            const verdict = analysis.verdict || 'INCONCLUSIVE';
+            const isAuthentic = !verdict.includes('FORGED') && !verdict.includes('TAMPERED') && !verdict.includes('SUSPICIOUS');
+            const isSuspicious = verdict.includes('SUSPICIOUS');
+            
+            let metrics = analysis.metrics || {};
+            let description = '';
+            
+            // Type-specific descriptions
+            switch(type) {
+                case 'signature':
+                    description = 'Signature analysis examines stroke patterns, pressure points, and natural variations to determine authenticity.';
+                    break;
+                case 'ink':
+                    description = 'Ink analysis evaluates chemical composition, age consistency, and application methods.';
+                    break;
+                case 'digital':
+                    description = 'Digital forensics examines metadata, compression artifacts, and editing history.';
+                    metrics = {
+                        'Tamper Probability': analysis.tamper_probability || 0,
+                        'Manipulation Score': analysis.manipulation_score || 0,
+                        'Compression Artifacts': analysis.compression_artifacts ? 'Detected' : 'None',
+                        'Edit History': analysis.edit_history || 'Unknown'
+                    };
+                    break;
+                case 'paper':
+                    description = 'Paper analysis checks fiber distribution, watermark authenticity, and aging patterns.';
+                    break;
+            }
+            
+            return `
+                <div class="analysis-content">
+                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">${description}</p>
+                    
+                    <div class="analysis-verdict ${isAuthentic ? 'authentic' : (isSuspicious ? 'suspicious' : 'forged')}">
+                        <i class="fas fa-${isAuthentic ? 'check-circle' : (isSuspicious ? 'question-circle' : 'times-circle')}"></i> Verdict: ${verdict.replace(/_/g, ' ')}
+                    </div>
+                    <div class="confidence-meter">
+                        <div class="confidence-level ${isAuthentic ? '' : (isSuspicious ? 'suspicious' : 'forged')}" style="width: ${score * 100}%"></div>
+                    </div>
+                    <p style="margin-bottom: 1.5rem;">Confidence: <strong>${(score * 100).toFixed(2)}%</strong></p>
+                    
+                    ${Object.keys(metrics).length ? `
+                    <div style="margin-bottom: 1rem;">
+                        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Key Metrics:</p>
+                        <div class="metrics-grid">
+                            ${Object.entries(metrics).map(([key, value]) => `
+                                <div class="metric-card">
+                                    <div class="metric-name">${key.replace(/_/g, ' ')}</div>
+                                    <div class="metric-value">
+                                        ${typeof value === 'number' ? value.toFixed(2) : value}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        function formatFileSize(bytes) {
+    if (!bytes) return 'N/A';
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    else return (bytes / 1048576).toFixed(2) + ' MB';
+}
+
+        function initializeCharts(data) {
+            // Signature Chart
+            const sigCtx = document.getElementById('signatureChart')?.getContext('2d');
+            if (sigCtx) {
+                new Chart(sigCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Stroke Consistency', 'Pressure Variance', 'Speed Analysis', 'Natural Variation', 'Pattern Match'],
+                        datasets: [{
+                            label: 'Signature Metrics',
+                            data: [
+                                data.signature_analysis?.metrics?.stroke_consistency || 0.8,
+                                data.signature_analysis?.metrics?.pressure_variance || 0.7,
+                                data.signature_analysis?.metrics?.speed_analysis || 0.6,
+                                data.signature_analysis?.metrics?.natural_variation || 0.75,
+                                data.signature_analysis?.metrics?.pattern_match || 0.85
+                            ],
+                            backgroundColor: 'rgba(0, 255, 157, 0.2)',
+                            borderColor: 'rgba(0, 255, 157, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(0, 255, 157, 1)',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255,255,255,0.1)' },
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                pointLabels: { color: 'rgba(255,255,255,0.8)' },
+                                ticks: {
+                                    backdropColor: 'transparent',
+                                    color: 'rgba(255,255,255,0.5)',
+                                    stepSize: 0.2
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: 'rgba(255,255,255,0.8)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Ink Chart
+            const inkCtx = document.getElementById('inkChart')?.getContext('2d');
+            if (inkCtx) {
+                new Chart(inkCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Chemical Match', 'Age Consistency', 'Application Method', 'Spectral Analysis'],
+                        datasets: [{
+                            data: [
+                                data.ink_analysis?.metrics?.chemical_match || 0.75,
+                                data.ink_analysis?.metrics?.age_consistency || 0.65,
+                                data.ink_analysis?.metrics?.application_method || 0.8,
+                                data.ink_analysis?.metrics?.spectral_analysis || 0.7
+                            ],
+                            backgroundColor: [
+                                'rgba(0, 255, 157, 0.7)',
+                                'rgba(0, 225, 255, 0.7)',
+                                'rgba(0, 150, 255, 0.7)',
+                                'rgba(0, 100, 255, 0.7)'
+                            ],
+                            borderColor: 'rgba(20, 20, 20, 0.8)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: 'rgba(255,255,255,0.8)' }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+            
+            // Digital Chart
+            const digCtx = document.getElementById('digitalChart')?.getContext('2d');
+            if (digCtx) {
+                new Chart(digCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Metadata Integrity', 'Tamper Probability', 'Compression', 'Edit History'],
+                        datasets: [{
+                            label: 'Digital Analysis',
+                            data: [
+                                1 - (data.metadata_analysis?.tamper_probability || 0.3),
+                                data.metadata_analysis?.tamper_probability || 0.3,
+                                data.metadata_analysis?.compression_artifacts ? 0.8 : 0.1,
+                                data.metadata_analysis?.edit_history ? 0.7 : 0.2
+                            ],
+                            backgroundColor: [
+                                'rgba(0, 255, 157, 0.7)',
+                                'rgba(255, 56, 96, 0.7)',
+                                'rgba(255, 204, 0, 0.7)',
+                                'rgba(100, 150, 255, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(0, 255, 157, 1)',
+                                'rgba(255, 56, 96, 1)',
+                                'rgba(255, 204, 0, 1)',
+                                'rgba(100, 150, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: 'rgba(255,255,255,0.7)' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: 'rgba(255,255,255,0.7)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+            
+            // Paper Chart
+            const paperCtx = document.getElementById('paperChart')?.getContext('2d');
+            if (paperCtx) {
+                new Chart(paperCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Fiber Density', 'Watermark Match', 'Aging Pattern', 'Chemical Test', 'UV Response'],
+                        datasets: [{
+                            label: 'Paper Analysis',
+                            data: [
+                                data.paper_analysis?.metrics?.fiber_density || 0.7,
+                                data.paper_analysis?.metrics?.watermark_match || 0.8,
+                                data.paper_analysis?.metrics?.aging_pattern || 0.6,
+                                data.paper_analysis?.metrics?.chemical_test || 0.75,
+                                data.paper_analysis?.metrics?.uv_response || 0.65
+                            ],
+                            backgroundColor: 'rgba(0, 225, 255, 0.1)',
+                            borderColor: 'rgba(0, 225, 255, 1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(0, 225, 255, 1)',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: 'rgba(255,255,255,0.7)' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: 'rgba(255,255,255,0.7)' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: 'rgba(255,255,255,0.8)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Forensic Chart
+            const forensicCtx = document.getElementById('forensicChart')?.getContext('2d');
+            if (forensicCtx) {
+                new Chart(forensicCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Signature', 'Ink', 'Digital', 'Paper', 'Overall'],
+                        datasets: [
+                            {
+                                label: 'Authenticity Score',
+                                data: [
+                                    (data.signature_analysis?.authenticity_score || 0) * 100,
+                                    (data.ink_analysis?.consistency_score || 0) * 100,
+                                    (1 - (data.metadata_analysis?.tamper_probability || 0)) * 100,
+                                    (data.paper_analysis?.authenticity_score || 0) * 100,
+                                    (data.final_verdict?.confidence || 0) * 100
+                                ],
+                                backgroundColor: 'rgba(0, 255, 157, 0.7)',
+                                borderColor: 'rgba(0, 255, 157, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Forgery Indicators',
+                                data: [
+                                    (1 - (data.signature_analysis?.authenticity_score || 0)) * 100,
+                                    (1 - (data.ink_analysis?.consistency_score || 0)) * 100,
+                                    (data.metadata_analysis?.tamper_probability || 0) * 100,
+                                    (1 - (data.paper_analysis?.authenticity_score || 0)) * 100,
+                                    (1 - (data.final_verdict?.confidence || 0)) * 100
+                                ],
+                                backgroundColor: 'rgba(255, 56, 96, 0.7)',
+                                borderColor: 'rgba(255, 56, 96, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: { display: false },
+                                ticks: { color: 'rgba(255,255,255,0.7)' }
+                            },
+                            y: {
+                                stacked: true,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { 
+                                    color: 'rgba(255,255,255,0.7)',
+                                    callback: function(value) { return value + '%'; }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: 'rgba(255,255,255,0.8)' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function animateReport() {
+            // Animate cards sequentially
+            const cards = document.querySelectorAll('.analysis-card, .verdict-section');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 150 * index);
+            });
+            
+            // Animate confidence meters
+            setTimeout(() => {
+                const meters = document.querySelectorAll('.confidence-level');
+                meters.forEach(meter => {
+                    const width = meter.style.width;
+                    meter.style.width = '0';
+                    setTimeout(() => {
+                        meter.style.width = width;
+                    }, 100);
+                });
+            }, 300);
+            
+            // Add pulse animation to verdict
+            setTimeout(() => {
+                const verdict = document.querySelector('.verdict-section');
+                if (verdict) {
+                    verdict.style.animation = 'pulse 2s ease-in-out';
+                    setTimeout(() => {
+                        verdict.style.animation = '';
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        function generatePDF() {
+            const btn = document.getElementById('downloadReport');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+                btn.style.opacity = '0.8';
+                
+                // Simulate PDF generation
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Report Downloaded';
+                    btn.style.background = 'linear-gradient(90deg, var(--primary), var(--secondary))';
+                    
+                    // Create a dummy download
+                    const blob = new Blob(["FORGESCAN Forensic Report - Case #" + document.getElementById('caseNumber').textContent], {type: 'application/pdf'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'FORGESCAN_Report_' + document.getElementById('caseNumber').textContent + '.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download Complete Report';
+                        btn.style.opacity = '1';
+                    }, 2000);
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>
