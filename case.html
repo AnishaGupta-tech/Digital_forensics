@@ -362,7 +362,7 @@
                 <div class="comparison-header original-header">
                     <h3 class="comparison-title original-title">Authentic Document</h3>
                 </div>
-                <img src="for.png" alt="Original Document" class="comparison-image">
+                <img src="{{ url_for('static', filename='images/for.png') }}" alt="Original Document" class="comparison-image">
                 <div class="comparison-analysis">
                     <div class="analysis-point">
                         <i class="fas fa-check-circle"></i>
@@ -406,7 +406,7 @@
                 <div class="comparison-header forged-header">
                     <h3 class="comparison-title forged-title">Forged Document</h3>
                 </div>
-                <img src="org.png" alt="Forged Document" class="comparison-image">
+                <img src="{{ url_for('static', filename='images/org.png') }}" alt="Forged Document" class="comparison-image">
                 <div class="comparison-analysis">
                     <div class="analysis-point forged">
                         <i class="fas fa-times-circle"></i>

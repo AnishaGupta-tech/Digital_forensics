@@ -176,7 +176,7 @@
             position: absolute;
             right: 5%;
             width: 40%;
-            max-width: 600px;
+            max-width: 550px;
             animation: float 6s ease-in-out infinite;
         }
         
@@ -580,7 +580,7 @@
                 position: relative;
                 right: auto;
                 width: 100%;
-                max-width: 500px;
+                max-width: 450px;
                 margin-top: 2rem;
             }
             
@@ -668,7 +668,8 @@
             </div>
         </div>
         <div class="hero-image">
-  <img src="cyber-attack.png" class="hero-illustration">
+  <img src="{{ url_for('static', filename='images/cyber-attack.png') }}" alt="Cyber Attack">
+
 </div>
     </section>
     
@@ -875,12 +876,12 @@
                 <div class="tool-icon">
                     <i class="fas fa-print"></i>
                 </div>
-                <h3>Printer Forensics</h3>
-                <p>Identifies the source printer through microscopic analysis of printing patterns and toner characteristics.</p>
+                <h3>Paper Forensics</h3>
+                <p>Identifies the source paper through microscopic analysis of printing patterns and toner characteristics.</p>
                 <a href="printer-forensics.html" class="btn btn-primary">Explore Tool</a>
             </div>
             
-            <!-- Tool 5 -->
+            <!-- Tool 5 
             <div class="tool-card">
                 <div class="tool-icon">
                     <i class="fas fa-stamp"></i>
@@ -888,7 +889,7 @@
                 <h3>Stamp & Seal Verifier</h3>
                 <p>Authenticates official stamps and seals by analyzing pressure patterns, ink distribution, and microscopic details.</p>
                 <a href="stamp-verifier.html" class="btn btn-primary">Explore Tool</a>
-            </div>
+            </div>-->
             
             <!-- Tool 6 -->
             <div class="tool-card">
