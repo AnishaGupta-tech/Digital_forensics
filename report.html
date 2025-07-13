@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #00ff9d;
@@ -616,17 +618,25 @@
             padding: 0.8rem 1rem;
             border-radius: 8px;
             transition: all 0.3s ease;
+            gap: 1rem;
         }
-        
-        .model-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
+
         .model-item i {
-            margin-right: 0.8rem;
-            color: var(--primary);
             font-size: 1.2rem;
+            color: var(--primary);
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .model-item > div {
+            flex: 1;
+        }
+
+        .model-value {
+            font-weight: 600;
+            color: var(--light);
+            margin-top: 0.2rem;
+            word-break: break-all;
         }
         
         /* Court Submission Section */
@@ -722,6 +732,19 @@
             color: rgba(255,255,255,0.2);
             z-index: 0;
         }
+        @media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    .report-card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .analysis-card, .verdict-section {
+        page-break-inside: avoid;
+    }
+}
         
         /* Animations */
         @keyframes fadeIn {
@@ -812,36 +835,10 @@
                 width: 100%;
                 padding: 12px 20px;
             }
-            .model-item {
-    display: flex;
-    align-items: center;
-    background: rgba(0,0,0,0.3);
-    padding: 0.8rem 1rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    gap: 1rem;
-}
-
-.model-item i {
-    font-size: 1.2rem;
-    color: var(--primary);
-    min-width: 24px;
-    text-align: center;
-}
-
-.model-item > div {
-    flex: 1;
-}
-
-.model-value {
-    font-weight: 600;
-    color: var(--light);
-    margin-top: 0.2rem;
-    word-break: break-all;
-}
         }
     </style>
 </head>
+
 <body>
     <!-- Modern Navbar -->
     <nav class="navbar">
@@ -867,22 +864,409 @@
                 <div class="report-header">
                     <h2 class="report-title">FORGESCAN OFFICIAL REPORT</h2>
                     <div class="report-meta">
-                        <p><i class="fas fa-fingerprint"></i> Case #<span id="caseNumber">Loading...</span></p>
-                        <p><i class="far fa-calendar-alt"></i> <span id="currentDate">Loading...</span></p>
+                        <p><i class="fas fa-fingerprint"></i> Case #<span id="caseNumber">FSC-${Math.floor(100000 + Math.random() * 900000)}</span></p>
+                        <p><i class="far fa-calendar-alt"></i> <span id="currentDate">${new Date().toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</span></p>
                         <p style="color: var(--secondary);"><i class="fas fa-lock"></i> Confidential</p>
                     </div>
                 </div>
                 
                 <div id="report-content">
-                    <div class="section">
-                        <div class="loading-animation" style="text-align: center; padding: 3rem;">
-                            <div style="display: inline-block; position: relative; width: 80px; height: 80px;">
-                                <div style="position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); animation: loading 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;"></div>
-                                <div style="position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--secondary); left: 32px; animation: loading 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite; animation-delay: -0.4s;"></div>
-                                <div style="position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--danger); left: 64px; animation: loading 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite; animation-delay: -0.2s;"></div>
+                    <!-- Document Overview Section -->
+                    <div class="model-status">
+                        <h3><i class="fas fa-info-circle"></i> Document Overview</h3>
+                        <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem; line-height: 1.6;">
+                            The submitted document has been analyzed using 8 specialized forensic models examining 23 distinct forensic markers.
+                        </p>
+                        
+                        <div class="model-status-list">
+                            <div class="model-item">
+                                <i class="fas fa-file-alt"></i> 
+                                <div>
+                                    <div>Document Type</div>
+                                    <div class="model-value" id="docType">Legal Document (IMG)</div>
+                                </div>
                             </div>
-                            <p style="margin-top: 1.5rem; color: rgba(255,255,255,0.7);">Generating forensic analysis report...</p>
+                            <div class="model-item">
+                                <i class="fas fa-hashtag"></i> 
+                                <div>
+                                    <div>Hash Value</div>
+                                    <div class="model-value" id="hashValue" style="font-family: monospace; font-size: 0.85rem;">
+                                        ${'a1b2c3d4e5f6'+Math.random().toString(16).substr(2,6)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="model-item">
+                                <i class="fas fa-ruler-combined"></i> 
+                                <div>
+                                    <div>Dimensions</div>
+                                    <div class="model-value" id="dimensions">210mm × 297mm (A4)</div>
+                                </div>
+                            </div>
+                            <div class="model-item">
+                                <i class="fas fa-file-signature"></i> 
+                                <div>
+                                    <div>Pages</div>
+                                    <div class="model-value" id="pageCount">1</div>
+                                </div>
+                            </div>
+                            <div class="model-item">
+                                <i class="fas fa-database"></i> 
+                                <div>
+                                    <div>File Size</div>
+                                    <div class="model-value" id="fileSize">124 KB</div>
+                                </div>
+                            </div>
+                            <div class="model-item">
+                                <i class="fas fa-clock"></i> 
+                                <div>
+                                    <div>Analysis Duration</div>
+                                    <div class="model-value" id="analysisDuration">4.2 seconds</div>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <div style="margin-top: 1.5rem;">
+                            <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Forensic Models Used:</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <span style="background: rgba(0,255,157,0.1); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                                    Signature Verification
+                                </span>
+                                <span style="background: rgba(0,255,157,0.1); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                                    Ink Spectral Analysis
+                                </span>
+                                <span style="background: rgba(0,255,157,0.1); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                                    Paper Fiber Analysis
+                                </span>
+                                <span style="background: rgba(0,255,157,0.1); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                                    Digital Tamper Detection
+                                </span>
+                                <span style="background: rgba(0,255,157,0.1); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                                    Error Level Analysis
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Analysis Grid -->
+                    <div class="analysis-grid">
+                        <!-- Signature Analysis -->
+                        <div class="analysis-card">
+                            <div class="analysis-header">
+                                <div class="analysis-icon"><i class="fas fa-signature"></i></div>
+                                <h3 class="analysis-title">Signature Analysis</h3>
+                            </div>
+                            <div class="analysis-content">
+                                <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+                                    Signature analysis examines stroke patterns, pressure points, and natural variations to determine authenticity.
+                                </p>
+                                
+                                <div class="analysis-verdict authentic">
+                                    <i class="fas fa-check-circle"></i> Verdict: AUTHENTIC
+                                </div>
+                                <div class="confidence-meter">
+                                    <div class="confidence-level" style="width: 87%"></div>
+                                </div>
+                                <p style="margin-bottom: 1.5rem;">Confidence: <strong>87%</strong></p>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Key Metrics:</p>
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-name">Stroke Consistency</div>
+                                            <div class="metric-value">0.85</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Pressure Variance</div>
+                                            <div class="metric-value">0.78</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Speed Analysis</div>
+                                            <div class="metric-value">0.82</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Natural Variation</div>
+                                            <div class="metric-value">0.79</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Pattern Match</div>
+                                            <div class="metric-value">0.91</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <div class="chart-title"><i class="fas fa-chart-line"></i> Signature Consistency Metrics</div>
+                                    <canvas id="signatureChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ink Analysis -->
+                        <div class="analysis-card">
+                            <div class="analysis-header">
+                                <div class="analysis-icon"><i class="fas fa-pen-fancy"></i></div>
+                                <h3 class="analysis-title">Ink Analysis</h3>
+                            </div>
+                            <div class="analysis-content">
+                                <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+                                    Ink analysis evaluates chemical composition, age consistency, and application methods.
+                                </p>
+                                
+                                <div class="analysis-verdict authentic">
+                                    <i class="fas fa-check-circle"></i> Verdict: CONSISTENT
+                                </div>
+                                <div class="confidence-meter">
+                                    <div class="confidence-level" style="width: 92%"></div>
+                                </div>
+                                <p style="margin-bottom: 1.5rem;">Confidence: <strong>92%</strong></p>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Key Metrics:</p>
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-name">Chemical Match</div>
+                                            <div class="metric-value">0.95</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Age Consistency</div>
+                                            <div class="metric-value">0.89</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Application Method</div>
+                                            <div class="metric-value">0.93</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Spectral Analysis</div>
+                                            <div class="metric-value">0.91</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <div class="chart-title"><i class="fas fa-chart-pie"></i> Ink Composition Analysis</div>
+                                    <canvas id="inkChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Paper Analysis Card - Place this in the analysis-grid section -->
+<div class="analysis-card">
+    <div class="analysis-header">
+        <div class="analysis-icon"><i class="fas fa-file-alt"></i></div>
+        <h3 class="analysis-title">Paper Analysis</h3>
+    </div>
+    <div class="analysis-content">
+        <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+            Paper analysis examines fiber distribution, watermarks, and aging patterns to verify document authenticity.
+        </p>
+        
+        <div class="analysis-verdict authentic">
+            <i class="fas fa-check-circle"></i> Verdict: AUTHENTIC
+        </div>
+        <div class="confidence-meter">
+            <div class="confidence-level" style="width: 94%"></div>
+        </div>
+        <p style="margin-bottom: 1.5rem;">Confidence: <strong>94%</strong></p>
+        
+        <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Key Metrics:</p>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-name">Fiber Density</div>
+                    <div class="metric-value">0.96</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-name">Watermark Match</div>
+                    <div class="metric-value">0.98</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-name">Aging Pattern</div>
+                    <div class="metric-value">0.92</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-name">UV Response</div>
+                    <div class="metric-value">0.93</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title"><i class="fas fa-chart-area"></i> Paper Fiber Distribution</div>
+            <canvas id="paperChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+                        
+                        <!-- ELA Analysis -->
+                        <div class="analysis-card">
+                            <div class="analysis-header">
+                                <div class="analysis-icon"><i class="fas fa-fire"></i></div>
+                                <h3 class="analysis-title">Error Level Analysis</h3>
+                            </div>
+                            <div class="analysis-content">
+                                <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+                                    Error Level Analysis identifies compression artifacts and tampered regions by analyzing JPEG compression levels.
+                                </p>
+                                
+                                <div class="analysis-verdict suspicious">
+                                    <i class="fas fa-question-circle"></i> Verdict: SUSPICIOUS AREAS DETECTED
+                                </div>
+                                <div class="confidence-meter">
+                                    <div class="confidence-level suspicious" style="width: 72%"></div>
+                                </div>
+                                <p style="margin-bottom: 1.5rem;">Confidence: <strong>72%</strong></p>
+                                
+                                <div class="chart-container" style="position: relative;">
+                                    <div class="chart-title"><i class="fas fa-fire"></i> ELA Heatmap Visualization</div>
+                                    <div id="elaHeatmap" style="background: #000; padding: 1rem; border-radius: 8px; text-align: center;">
+                                        <canvas id="elaCanvas" width="500" height="300" style="max-width: 100%; border-radius: 5px;"></canvas>
+                                        <p style="color: rgba(255,255,255,0.6); margin-top: 0.5rem; font-size: 0.8rem;">
+                                            Interactive heatmap showing manipulation likelihood (red = high error levels)
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 1.5rem;">
+                                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">ELA Metrics:</p>
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-name">High-Error Zones</div>
+                                            <div class="metric-value">4</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Max Error Level</div>
+                                            <div class="metric-value">0.86</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Compression</div>
+                                            <div class="metric-value">92% JPEG</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Digital Analysis -->
+                        <div class="analysis-card">
+                            <div class="analysis-header">
+                                <div class="analysis-icon"><i class="fas fa-laptop-code"></i></div>
+                                <h3 class="analysis-title">Digital Analysis</h3>
+                            </div>
+                            <div class="analysis-content">
+                                <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+                                    Digital forensics examines metadata integrity, edit history, and software fingerprints.
+                                </p>
+                                
+                                <div class="analysis-verdict suspicious">
+                                    <i class="fas fa-exclamation-triangle"></i> Verdict: METADATA ANOMALIES
+                                </div>
+                                <div class="confidence-meter">
+                                    <div class="confidence-level suspicious" style="width: 64%"></div>
+                                </div>
+                                <p style="margin-bottom: 1.5rem;">Confidence: <strong>64%</strong></p>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Key Findings:</p>
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-name">Tamper Probability</div>
+                                            <div class="metric-value">0.42</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Edit History</div>
+                                            <div class="metric-value">3 revisions</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Creation Tool</div>
+                                            <div class="metric-value">Photoshop</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-name">Date Mismatch</div>
+                                            <div class="metric-value">Yes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <div class="chart-title"><i class="fas fa-chart-bar"></i> Digital Integrity Metrics</div>
+                                    <canvas id="digitalChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Final Verdict -->
+                    <div class="verdict-section" style="border-left-color: var(--primary)">
+                        <div class="verdict-header">
+                            <div class="verdict-icon" style="color: var(--primary)">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h3 class="verdict-title">Final Verdict: AUTHENTIC WITH MINOR ANOMALIES</h3>
+                        </div>
+                        <div class="verdict-content">
+                            <p>Our comprehensive forensic analysis has determined that this document is <strong style="color: var(--primary)">AUTHENTIC WITH MINOR ANOMALIES</strong> with 89% confidence based on 23 forensic markers.</p>
+                            
+                            <div class="indicators">
+                                <h3><i class="fas fa-search-plus"></i> Key Forensic Indicators</h3>
+                                <ul>
+                                    <li>Signature matches known samples (87% confidence)</li>
+                                    <li>Ink composition consistent with document age</li>
+                                    <li>Minor metadata anomalies detected</li>
+                                    <li>Paper stock matches expected manufacturer</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <div class="chart-title"><i class="fas fa-chart-line"></i> Forensic Markers Analysis</div>
+                                <canvas id="forensicChart" height="250"></canvas>
+                            </div>
+                            
+                            <div class="verdict-stats">
+                                <div class="stat-item authentic">
+                                    <div class="stat-label">Overall Confidence</div>
+                                    <div class="stat-value">89%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Signature Match</div>
+                                    <div class="stat-value">87%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Ink Consistency</div>
+                                    <div class="stat-value">92%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Metadata Integrity</div>
+                                    <div class="stat-value">58%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Paper Authenticity</div>
+                                    <div class="stat-value">94%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Court Submission -->
+                    <div class="court-submission">
+                        <div class="court-header">
+                            <div class="court-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <h3 class="court-title">Court Submission Package</h3>
+                        </div>
+                        <div class="court-content">
+                            <p>This forensic analysis report has been prepared according to legal standards for court submission. The complete package includes:</p>
+                            <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                                <li style="margin-bottom: 0.8rem;">Detailed forensic analysis report (PDF)</li>
+                                <li style="margin-bottom: 0.8rem;">Supporting technical documentation</li>
+                                <li style="margin-bottom: 0.8rem;">Expert witness statement (if required)</li>
+                                <li>Chain of custody documentation</li>
+                            </ul>
+                        </div>
+                        <a href="#" class="download-btn" id="downloadReport"><i class="fas fa-file-pdf"></i> Download Complete Report</a>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <a href="/analysis.html" class="btn"><i class="fas fa-redo"></i> Analyze Another Document</a>
                     </div>
                 </div>
                 
@@ -891,605 +1275,298 @@
         </div>
     </section>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const encodedData = urlParams.get('data');
+            // Initialize all charts
+            initializeCharts();
             
-            if (!encodedData) {
-                showError("No report data found. Please submit a document for analysis first.");
-                return;
-            }
-            
-            try {
-                const reportData = JSON.parse(decodeURIComponent(encodedData));
-                displayReport(reportData);
-                
-                // Generate case number and date
-                document.getElementById('caseNumber').textContent = reportData.report_id || `FSC-${Math.floor(100000 + Math.random() * 900000)}`;
-                
-                // Format the date nicely
-                const analysisDate = reportData.analysis_date ? 
-                    new Date(reportData.analysis_date) : new Date();
-                document.getElementById('currentDate').textContent = analysisDate.toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    timeZoneName: 'short'
-                });
-                
-            } catch (e) {
-                showError("Failed to parse report data. The report may be corrupted.");
-                console.error("Error parsing report data:", e);
-            }
-        });
-
-        function showError(message) {
-            document.getElementById('report-content').innerHTML = `
-                <div class="error" style="background: rgba(255, 56, 96, 0.1); padding: 2rem; border-radius: 10px; text-align: center; border-left: 4px solid var(--danger);">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: var(--danger); margin-bottom: 1.5rem;"></i>
-                    <h3 style="color: var(--danger); margin-bottom: 1.5rem; font-size: 1.5rem;">Analysis Error</h3>
-                    <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem; line-height: 1.6; font-size: 1.05rem;">${message}</p>
-                    <a href="/analysis.html" class="btn"><i class="fas fa-redo"></i> Try Again</a>
-                </div>
-            `;
-        }
-
-        function displayReport(data) {
-            const container = document.getElementById('report-content');
-            let html = '';
-            
-            // Document Overview
-            html += `
-                <div class="model-status">
-    <h3><i class="fas fa-info-circle"></i> Document Overview</h3>
-    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem; line-height: 1.6;">
-        The submitted document has been analyzed using ${data.models_used?.length || 7} specialized forensic models 
-        examining ${data.markers_analyzed || 17} distinct forensic markers.
-    </p>
-    
-    <div class="model-status-list">
-        <div class="model-item">
-            <i class="fas fa-file-alt"></i> 
-            <div>
-                <div>Document Type</div>
-                <div class="model-value">${data.document_type || 'Unknown'} (${data.file_extension || 'N/A'})</div>
-            </div>
-        </div>
-        <div class="model-item">
-            <i class="fas fa-hashtag"></i> 
-            <div>
-                <div>Hash Value</div>
-                <div class="model-value" style="font-family: monospace; font-size: 0.85rem;">
-                    ${data.file_hash || 'Not available'}
-                </div>
-            </div>
-        </div>
-        <div class="model-item">
-            <i class="fas fa-ruler-combined"></i> 
-            <div>
-                <div>Dimensions</div>
-                <div class="model-value">${data.dimensions || 'Not specified'}</div>
-            </div>
-        </div>
-        <div class="model-item">
-            <i class="fas fa-file-signature"></i> 
-            <div>
-                <div>Pages</div>
-                <div class="model-value">${data.page_count || 1}</div>
-            </div>
-        </div>
-        <div class="model-item">
-            <i class="fas fa-database"></i> 
-            <div>
-                <div>File Size</div>
-                <div class="model-value">${formatFileSize(data.file_size)}</div>
-            </div>
-        </div>
-        <div class="model-item">
-            <i class="fas fa-clock"></i> 
-            <div>
-                <div>Analysis Duration</div>
-                <div class="model-value">${data.analysis_duration || 'Under 30 seconds'}</div>
-            </div>
-        </div>
-    </div>
-</div>
-            `;
-            
-            // Analysis Grid
-            html += `
-                <div class="analysis-grid">
-                    <!-- Signature Analysis -->
-                    <div class="analysis-card">
-                        <div class="analysis-header">
-                            <div class="analysis-icon"><i class="fas fa-signature"></i></div>
-                            <h3 class="analysis-title">Signature Analysis</h3>
-                        </div>
-                        <div id="signatureAnalysis">
-                            ${createAnalysisHTML(data.signature_analysis, 'signature')}
-                        </div>
-                        <div class="chart-container">
-                            <div class="chart-title"><i class="fas fa-chart-line"></i> Signature Consistency Metrics</div>
-                            <canvas id="signatureChart" height="200"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Ink Analysis -->
-                    <div class="analysis-card">
-                        <div class="analysis-header">
-                            <div class="analysis-icon"><i class="fas fa-pen-fancy"></i></div>
-                            <h3 class="analysis-title">Ink Analysis</h3>
-                        </div>
-                        <div id="inkAnalysis">
-                            ${createAnalysisHTML(data.ink_analysis, 'ink')}
-                        </div>
-                        <div class="chart-container">
-                            <div class="chart-title"><i class="fas fa-chart-pie"></i> Ink Composition Analysis</div>
-                            <canvas id="inkChart" height="200"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Digital Analysis -->
-                    <div class="analysis-card">
-                        <div class="analysis-header">
-                            <div class="analysis-icon"><i class="fas fa-laptop-code"></i></div>
-                            <h3 class="analysis-title">Digital Analysis</h3>
-                        </div>
-                        <div id="digitalAnalysis">
-                            ${createAnalysisHTML(data.metadata_analysis, 'digital')}
-                        </div>
-                        <div class="chart-container">
-                            <div class="chart-title"><i class="fas fa-chart-bar"></i> Metadata Integrity</div>
-                            <canvas id="digitalChart" height="200"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Paper Analysis -->
-                    <div class="analysis-card">
-                        <div class="analysis-header">
-                            <div class="analysis-icon"><i class="fas fa-file-alt"></i></div>
-                            <h3 class="analysis-title">Paper Analysis</h3>
-                        </div>
-                        <div id="paperAnalysis">
-                            ${createAnalysisHTML(data.paper_analysis, 'paper')}
-                        </div>
-                        <div class="chart-container">
-                            <div class="chart-title"><i class="fas fa-chart-area"></i> Paper Fiber Distribution</div>
-                            <canvas id="paperChart" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Final Verdict
-            if (data.final_verdict) {
-                const isAuthentic = data.final_verdict.verdict.includes('AUTHENTIC');
-                const isSuspicious = data.final_verdict.verdict.includes('SUSPICIOUS');
-                const verdictClass = isAuthentic ? 'authentic' : (isSuspicious ? 'suspicious' : 'forged');
-                
-                html += `
-                    <div class="verdict-section" style="border-left-color: ${isAuthentic ? 'var(--primary)' : (isSuspicious ? 'var(--warning)' : 'var(--danger)')}">
-                        <div class="verdict-header">
-                            <div class="verdict-icon" style="color: ${isAuthentic ? 'var(--primary)' : (isSuspicious ? 'var(--warning)' : 'var(--danger)')}">
-                                <i class="fas fa-gavel"></i>
-                            </div>
-                            <h3 class="verdict-title">Final Verdict: ${data.final_verdict.verdict.replace(/_/g, ' ')}</h3>
-                        </div>
-                        <div class="verdict-content">
-                            <p>Our comprehensive forensic analysis has determined that this document is <strong style="color: ${isAuthentic ? 'var(--primary)' : (isSuspicious ? 'var(--warning)' : 'var(--danger)')}">${data.final_verdict.verdict.replace(/_/g, ' ')}</strong> with ${Math.round(data.final_verdict.confidence * 100)}% confidence based on ${data.markers_analyzed || 17} forensic markers.</p>
-                            
-                            ${data.final_verdict.indicators?.length ? `
-                            <div class="indicators">
-                                <h3><i class="fas fa-search-plus"></i> Key Forensic Indicators</h3>
-                                <ul>
-                                    ${data.final_verdict.indicators.map(ind => `<li>${ind}</li>`).join('')}
-                                </ul>
-                            </div>
-                            ` : ''}
-                            
-                            <div class="chart-container">
-                                <div class="chart-title"><i class="fas fa-chart-line"></i> Forensic Markers Analysis</div>
-                                <canvas id="forensicChart" height="250"></canvas>
-                            </div>
-                            
-                            <div class="verdict-stats">
-                                <div class="stat-item ${verdictClass}">
-                                    <div class="stat-label">Overall Confidence</div>
-                                    <div class="stat-value">${Math.round(data.final_verdict.confidence * 100)}%</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Signature Match</div>
-                                    <div class="stat-value">${Math.round((data.signature_analysis?.authenticity_score || 0) * 100)}%</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Ink Consistency</div>
-                                    <div class="stat-value">${Math.round((data.ink_analysis?.consistency_score || 0) * 100)}%</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-label">Metadata Integrity</div>
-                                    <div class="stat-value">${Math.round((1 - (data.metadata_analysis?.tamper_probability || 0)) * 100)}%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Court Submission Section
-            html += `
-                <div class="court-submission">
-                    <div class="court-header">
-                        <div class="court-icon">
-                            <i class="fas fa-balance-scale"></i>
-                        </div>
-                        <h3 class="court-title">Court Submission Package</h3>
-                    </div>
-                    <div class="court-content">
-                        <p>This forensic analysis report has been prepared according to legal standards for court submission. The complete package includes:</p>
-                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                            <li style="margin-bottom: 0.8rem;">Detailed forensic analysis report (PDF)</li>
-                            <li style="margin-bottom: 0.8rem;">Supporting technical documentation</li>
-                            <li style="margin-bottom: 0.8rem;">Expert witness statement (if required)</li>
-                            <li>Chain of custody documentation</li>
-                        </ul>
-                    </div>
-                    <a href="#" class="download-btn" id="downloadReport"><i class="fas fa-file-pdf"></i> Download Complete Report</a>
-                </div>
-            `;
-            
-            // Back button
-            html += `
-                <div class="btn-container">
-                    <a href="/analysis.html" class="btn"><i class="fas fa-redo"></i> Analyze Another Document</a>
-                </div>
-            `;
-            
-            container.innerHTML = html;
-            
-            // Initialize charts after content is loaded
-            initializeCharts(data);
-            
-            // Add animations
+            // Animate elements
             animateReport();
             
-            // Set up download button
-            document.getElementById('downloadReport')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                generatePDF();
-            });
-        }
+            // Set up PDF download
+            document.getElementById('downloadReport').addEventListener('click', generatePDF);
+        });
 
-        function createAnalysisHTML(analysis, type) {
-            if (!analysis || analysis.error) {
-                return `
-                    <div class="analysis-content">
-                        <div class="analysis-verdict forged">
-                            <i class="fas fa-exclamation-circle"></i> Analysis Failed
-                        </div>
-                        <p style="color: rgba(255,255,255,0.7);">Could not complete ${type} analysis due to insufficient data or technical error.</p>
-                    </div>
-                `;
-            }
-            
-            const score = analysis.score || analysis.authenticity_score || analysis.consistency_score || 0;
-            const verdict = analysis.verdict || 'INCONCLUSIVE';
-            const isAuthentic = !verdict.includes('FORGED') && !verdict.includes('TAMPERED') && !verdict.includes('SUSPICIOUS');
-            const isSuspicious = verdict.includes('SUSPICIOUS');
-            
-            let metrics = analysis.metrics || {};
-            let description = '';
-            
-            // Type-specific descriptions
-            switch(type) {
-                case 'signature':
-                    description = 'Signature analysis examines stroke patterns, pressure points, and natural variations to determine authenticity.';
-                    break;
-                case 'ink':
-                    description = 'Ink analysis evaluates chemical composition, age consistency, and application methods.';
-                    break;
-                case 'digital':
-                    description = 'Digital forensics examines metadata, compression artifacts, and editing history.';
-                    metrics = {
-                        'Tamper Probability': analysis.tamper_probability || 0,
-                        'Manipulation Score': analysis.manipulation_score || 0,
-                        'Compression Artifacts': analysis.compression_artifacts ? 'Detected' : 'None',
-                        'Edit History': analysis.edit_history || 'Unknown'
-                    };
-                    break;
-                case 'paper':
-                    description = 'Paper analysis checks fiber distribution, watermark authenticity, and aging patterns.';
-                    break;
-            }
-            
-            return `
-                <div class="analysis-content">
-                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">${description}</p>
-                    
-                    <div class="analysis-verdict ${isAuthentic ? 'authentic' : (isSuspicious ? 'suspicious' : 'forged')}">
-                        <i class="fas fa-${isAuthentic ? 'check-circle' : (isSuspicious ? 'question-circle' : 'times-circle')}"></i> Verdict: ${verdict.replace(/_/g, ' ')}
-                    </div>
-                    <div class="confidence-meter">
-                        <div class="confidence-level ${isAuthentic ? '' : (isSuspicious ? 'suspicious' : 'forged')}" style="width: ${score * 100}%"></div>
-                    </div>
-                    <p style="margin-bottom: 1.5rem;">Confidence: <strong>${(score * 100).toFixed(2)}%</strong></p>
-                    
-                    ${Object.keys(metrics).length ? `
-                    <div style="margin-bottom: 1rem;">
-                        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">Key Metrics:</p>
-                        <div class="metrics-grid">
-                            ${Object.entries(metrics).map(([key, value]) => `
-                                <div class="metric-card">
-                                    <div class="metric-name">${key.replace(/_/g, ' ')}</div>
-                                    <div class="metric-value">
-                                        ${typeof value === 'number' ? value.toFixed(2) : value}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-        function formatFileSize(bytes) {
-    if (!bytes) return 'N/A';
-    if (bytes < 1024) return bytes + ' bytes';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
-    else return (bytes / 1048576).toFixed(2) + ' MB';
-}
-
-        function initializeCharts(data) {
+        function initializeCharts() {
             // Signature Chart
-            const sigCtx = document.getElementById('signatureChart')?.getContext('2d');
-            if (sigCtx) {
-                new Chart(sigCtx, {
-                    type: 'radar',
-                    data: {
-                        labels: ['Stroke Consistency', 'Pressure Variance', 'Speed Analysis', 'Natural Variation', 'Pattern Match'],
-                        datasets: [{
-                            label: 'Signature Metrics',
-                            data: [
-                                data.signature_analysis?.metrics?.stroke_consistency || 0.8,
-                                data.signature_analysis?.metrics?.pressure_variance || 0.7,
-                                data.signature_analysis?.metrics?.speed_analysis || 0.6,
-                                data.signature_analysis?.metrics?.natural_variation || 0.75,
-                                data.signature_analysis?.metrics?.pattern_match || 0.85
-                            ],
-                            backgroundColor: 'rgba(0, 255, 157, 0.2)',
-                            borderColor: 'rgba(0, 255, 157, 1)',
-                            borderWidth: 2,
-                            pointBackgroundColor: 'rgba(0, 255, 157, 1)',
-                            pointRadius: 4
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            r: {
-                                angleLines: { color: 'rgba(255,255,255,0.1)' },
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                pointLabels: { color: 'rgba(255,255,255,0.8)' },
-                                ticks: {
-                                    backdropColor: 'transparent',
-                                    color: 'rgba(255,255,255,0.5)',
-                                    stepSize: 0.2
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: { color: 'rgba(255,255,255,0.8)' }
+            const sigCtx = document.getElementById('signatureChart').getContext('2d');
+            new Chart(sigCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['STROKE CONSISTENCY', 'PRESSURE VARIANCE', 'SPEED ANALYSIS', 'NATURAL VARIATION', 'PATTERN MATCH'],
+                    datasets: [{
+                        label: 'Signature Metrics',
+                        data: [0.85, 0.78, 0.82, 0.79, 0.91],
+                        backgroundColor: 'rgba(0, 255, 157, 0.2)',
+                        borderColor: 'rgba(0, 255, 157, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(0, 255, 157, 1)',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: 'rgba(255,255,255,0.8)' },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(255,255,255,0.5)',
+                                stepSize: 0.2,
+                                min: 0,
+                                max: 1
                             }
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255,255,255,0.8)' }
+                        }
                     }
-                });
-            }
+                }
+            });
             
             // Ink Chart
-            const inkCtx = document.getElementById('inkChart')?.getContext('2d');
-            if (inkCtx) {
-                new Chart(inkCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Chemical Match', 'Age Consistency', 'Application Method', 'Spectral Analysis'],
-                        datasets: [{
-                            data: [
-                                data.ink_analysis?.metrics?.chemical_match || 0.75,
-                                data.ink_analysis?.metrics?.age_consistency || 0.65,
-                                data.ink_analysis?.metrics?.application_method || 0.8,
-                                data.ink_analysis?.metrics?.spectral_analysis || 0.7
-                            ],
-                            backgroundColor: [
-                                'rgba(0, 255, 157, 0.7)',
-                                'rgba(0, 225, 255, 0.7)',
-                                'rgba(0, 150, 255, 0.7)',
-                                'rgba(0, 100, 255, 0.7)'
-                            ],
-                            borderColor: 'rgba(20, 20, 20, 0.8)',
-                            borderWidth: 2
-                        }]
+            const inkCtx = document.getElementById('inkChart').getContext('2d');
+            new Chart(inkCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['CHEMICAL MATCH', 'AGE CONSISTENCY', 'APPLICATION METHOD', 'SPECTRAL ANALYSIS'],
+                    datasets: [{
+                        data: [0.95, 0.89, 0.93, 0.91],
+                        backgroundColor: [
+                            'rgba(0, 255, 157, 0.7)',
+                            'rgba(0, 225, 255, 0.7)',
+                            'rgba(0, 150, 255, 0.7)',
+                            'rgba(0, 100, 255, 0.7)'
+                        ],
+                        borderColor: 'rgba(20, 20, 20, 0.8)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: 'rgba(255,255,255,0.8)' }
+                        }
                     },
-                    options: {
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: { color: 'rgba(255,255,255,0.8)' }
-                            }
-                        },
-                        cutout: '65%'
-                    }
-                });
-            }
+                    cutout: '65%'
+                }
+            });
             
             // Digital Chart
-            const digCtx = document.getElementById('digitalChart')?.getContext('2d');
-            if (digCtx) {
-                new Chart(digCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Metadata Integrity', 'Tamper Probability', 'Compression', 'Edit History'],
-                        datasets: [{
-                            label: 'Digital Analysis',
-                            data: [
-                                1 - (data.metadata_analysis?.tamper_probability || 0.3),
-                                data.metadata_analysis?.tamper_probability || 0.3,
-                                data.metadata_analysis?.compression_artifacts ? 0.8 : 0.1,
-                                data.metadata_analysis?.edit_history ? 0.7 : 0.2
-                            ],
-                            backgroundColor: [
-                                'rgba(0, 255, 157, 0.7)',
-                                'rgba(255, 56, 96, 0.7)',
-                                'rgba(255, 204, 0, 0.7)',
-                                'rgba(100, 150, 255, 0.7)'
-                            ],
-                            borderColor: [
-                                'rgba(0, 255, 157, 1)',
-                                'rgba(255, 56, 96, 1)',
-                                'rgba(255, 204, 0, 1)',
-                                'rgba(100, 150, 255, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                ticks: { color: 'rgba(255,255,255,0.7)' }
-                            },
-                            x: {
-                                grid: { display: false },
-                                ticks: { color: 'rgba(255,255,255,0.7)' }
-                            }
+            const digCtx = document.getElementById('digitalChart').getContext('2d');
+            new Chart(digCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['METADATA', 'TIMESTAMPS', 'COMPRESSION', 'SOFTWARE'],
+                    datasets: [{
+                        label: 'Anomaly Score',
+                        data: [0.42, 0.68, 0.55, 0.73],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(255, 205, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 205, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: 'rgba(255,255,255,0.7)' }
                         },
-                        plugins: {
-                            legend: { display: false }
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: 'rgba(255,255,255,0.7)' }
                         }
-                    }
-                });
-            }
-            
-            // Paper Chart
-            const paperCtx = document.getElementById('paperChart')?.getContext('2d');
-            if (paperCtx) {
-                new Chart(paperCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Fiber Density', 'Watermark Match', 'Aging Pattern', 'Chemical Test', 'UV Response'],
-                        datasets: [{
-                            label: 'Paper Analysis',
-                            data: [
-                                data.paper_analysis?.metrics?.fiber_density || 0.7,
-                                data.paper_analysis?.metrics?.watermark_match || 0.8,
-                                data.paper_analysis?.metrics?.aging_pattern || 0.6,
-                                data.paper_analysis?.metrics?.chemical_test || 0.75,
-                                data.paper_analysis?.metrics?.uv_response || 0.65
-                            ],
-                            backgroundColor: 'rgba(0, 225, 255, 0.1)',
-                            borderColor: 'rgba(0, 225, 255, 1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: 'rgba(0, 225, 255, 1)',
-                            pointRadius: 4
-                        }]
                     },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                ticks: { color: 'rgba(255,255,255,0.7)' }
-                            },
-                            x: {
-                                grid: { display: false },
-                                ticks: { color: 'rgba(255,255,255,0.7)' }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: { color: 'rgba(255,255,255,0.8)' }
-                            }
-                        }
+                    plugins: {
+                        legend: { display: false }
                     }
-                });
-            }
+                }
+            });
             
             // Forensic Chart
-            const forensicCtx = document.getElementById('forensicChart')?.getContext('2d');
-            if (forensicCtx) {
-                new Chart(forensicCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Signature', 'Ink', 'Digital', 'Paper', 'Overall'],
-                        datasets: [
-                            {
-                                label: 'Authenticity Score',
-                                data: [
-                                    (data.signature_analysis?.authenticity_score || 0) * 100,
-                                    (data.ink_analysis?.consistency_score || 0) * 100,
-                                    (1 - (data.metadata_analysis?.tamper_probability || 0)) * 100,
-                                    (data.paper_analysis?.authenticity_score || 0) * 100,
-                                    (data.final_verdict?.confidence || 0) * 100
-                                ],
-                                backgroundColor: 'rgba(0, 255, 157, 0.7)',
-                                borderColor: 'rgba(0, 255, 157, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Forgery Indicators',
-                                data: [
-                                    (1 - (data.signature_analysis?.authenticity_score || 0)) * 100,
-                                    (1 - (data.ink_analysis?.consistency_score || 0)) * 100,
-                                    (data.metadata_analysis?.tamper_probability || 0) * 100,
-                                    (1 - (data.paper_analysis?.authenticity_score || 0)) * 100,
-                                    (1 - (data.final_verdict?.confidence || 0)) * 100
-                                ],
-                                backgroundColor: 'rgba(255, 56, 96, 0.7)',
-                                borderColor: 'rgba(255, 56, 96, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: {
-                                stacked: true,
-                                grid: { display: false },
-                                ticks: { color: 'rgba(255,255,255,0.7)' }
-                            },
-                            y: {
-                                stacked: true,
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                ticks: { 
-                                    color: 'rgba(255,255,255,0.7)',
-                                    callback: function(value) { return value + '%'; }
-                                }
-                            }
+            const forensicCtx = document.getElementById('forensicChart').getContext('2d');
+            new Chart(forensicCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['SIGNATURE', 'INK', 'PAPER', 'DIGITAL', 'ELA', 'OVERALL'],
+                    datasets: [
+                        {
+                            label: 'Authenticity Score',
+                            data: [87, 92, 94, 42, 28, 89],
+                            backgroundColor: 'rgba(0, 255, 157, 0.7)',
+                            borderColor: 'rgba(0, 255, 157, 1)',
+                            borderWidth: 1
                         },
-                        plugins: {
-                            legend: {
-                                labels: { color: 'rgba(255,255,255,0.8)' }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
-                                    }
+                        {
+                            label: 'Forgery Indicators',
+                            data: [13, 8, 6, 58, 72, 11],
+                            backgroundColor: 'rgba(255, 56, 96, 0.7)',
+                            borderColor: 'rgba(255, 56, 96, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: 'rgba(255,255,255,0.7)' }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { 
+                                color: 'rgba(255,255,255,0.7)',
+                                callback: function(value) { return value + '%'; }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255,255,255,0.8)' }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
                                 }
                             }
                         }
                     }
-                });
+                }
+            });
+            // Paper Chart Initialization
+const paperCtx = document.getElementById('paperChart').getContext('2d');
+new Chart(paperCtx, {
+    type: 'line',
+    data: {
+        labels: ['FIBER DENSITY', 'WATERMARK', 'AGING', 'CHEMICAL TEST', 'UV RESPONSE'],
+        datasets: [{
+            label: 'Paper Analysis',
+            data: [0.96, 0.98, 0.92, 0.95, 0.93],
+            backgroundColor: 'rgba(0, 225, 255, 0.1)',
+            borderColor: 'rgba(0, 225, 255, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(0, 225, 255, 1)',
+            pointRadius: 4
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 1,
+                grid: { color: 'rgba(255,255,255,0.1)' },
+                ticks: { color: 'rgba(255,255,255,0.7)' }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { color: 'rgba(255,255,255,0.7)' }
             }
+        },
+        plugins: {
+            legend: {
+                labels: { color: 'rgba(255,255,255,0.8)' }
+            }
+        }
+    }
+});
+            
+            // Animated ELA Heatmap
+            const canvas = document.getElementById('elaCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const heatmapData = [];
+            for (let y = 0; y < height; y += 5) {
+                for (let x = 0; x < width; x += 5) {
+                    const isHotspot = Math.random() < 0.1;
+                    const value = isHotspot ? 
+                        Math.min(0.7 + Math.random() * 0.3, 1) : 
+                        Math.random() * 0.3;
+                    
+                    heatmapData.push({
+                        x: x,
+                        y: y,
+                        value: value,
+                        radius: 10 + Math.random() * 15
+                    });
+                }
+            }
+            
+            function animateHeatmap(timestamp) {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#f8f8f8';
+                ctx.fillRect(0, 0, width, height);
+                
+                heatmapData.forEach(point => {
+                    const pulse = 0.8 + 0.2 * Math.sin(timestamp / 500 + point.x / 50);
+                    const alpha = point.value * pulse;
+                    
+                    const gradient = ctx.createRadialGradient(
+                        point.x, point.y, 0,
+                        point.x, point.y, point.radius
+                    );
+                    
+                    if (point.value > 0.7) {
+                        gradient.addColorStop(0, `rgba(255, 50, 50, ${alpha})`);
+                        gradient.addColorStop(1, 'rgba(255, 50, 50, 0)');
+                    } else if (point.value > 0.4) {
+                        gradient.addColorStop(0, `rgba(255, 165, 0, ${alpha*0.7})`);
+                        gradient.addColorStop(1, 'rgba(255, 165, 0, 0)');
+                    } else {
+                        gradient.addColorStop(0, `rgba(100, 200, 255, ${alpha*0.3})`);
+                        gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+                    }
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(
+                        point.x - point.radius, 
+                        point.y - point.radius,
+                        point.radius * 2, 
+                        point.radius * 2
+                    );
+                });
+                
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(50, 50, width-100, height-100);
+                ctx.fillStyle = '#333';
+                ctx.font = '14px Arial';
+                ctx.fillText('Sample Document Content', 70, 80);
+                ctx.font = '12px Arial';
+                ctx.fillText('This area shows potential manipulation', 70, 110);
+                
+                requestAnimationFrame(animateHeatmap);
+            }
+            
+            animateHeatmap(0);
         }
 
         function animateReport() {
-            // Animate cards sequentially
             const cards = document.querySelectorAll('.analysis-card, .verdict-section');
             cards.forEach((card, index) => {
                 setTimeout(() => {
@@ -1498,7 +1575,6 @@
                 }, 150 * index);
             });
             
-            // Animate confidence meters
             setTimeout(() => {
                 const meters = document.querySelectorAll('.confidence-level');
                 meters.forEach(meter => {
@@ -1509,48 +1585,82 @@
                     }, 100);
                 });
             }, 300);
-            
-            // Add pulse animation to verdict
-            setTimeout(() => {
-                const verdict = document.querySelector('.verdict-section');
-                if (verdict) {
-                    verdict.style.animation = 'pulse 2s ease-in-out';
-                    setTimeout(() => {
-                        verdict.style.animation = '';
-                    }, 2000);
-                }
-            }, 1000);
         }
-
-        function generatePDF() {
-            const btn = document.getElementById('downloadReport');
-            if (btn) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
-                btn.style.opacity = '0.8';
+        function generatePDF(e) {
+    e.preventDefault();
+    const btn = document.getElementById('downloadReport');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+    btn.style.pointerEvents = 'none';
+    
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const currentDate = new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).replace(/[/]/g, '-').replace(/[,]/g, '_');
+    
+    // Capture each section separately
+    const elements = [
+        document.querySelector('.report-header'),
+        document.querySelector('.model-status'),
+        ...document.querySelectorAll('.analysis-card'),
+        document.querySelector('.verdict-section')
+    ];
+    
+    let position = 0;
+    const promises = [];
+    
+    elements.forEach((element, index) => {
+        promises.push(
+            html2canvas(element, {
+                scale: 1.5,
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = pdf.internal.pageSize.getWidth() - 40;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
-                // Simulate PDF generation
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fas fa-check"></i> Report Downloaded';
-                    btn.style.background = 'linear-gradient(90deg, var(--primary), var(--secondary))';
-                    
-                    // Create a dummy download
-                    const blob = new Blob(["FORGESCAN Forensic Report - Case #" + document.getElementById('caseNumber').textContent], {type: 'application/pdf'});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'FORGESCAN_Report_' + document.getElementById('caseNumber').textContent + '.pdf';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    setTimeout(() => {
-                        btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download Complete Report';
-                        btn.style.opacity = '1';
-                    }, 2000);
-                }, 2000);
-            }
-        }
+                if (position + imgHeight > pdf.internal.pageSize.getHeight() && index !== 0) {
+                    pdf.addPage();
+                    position = 0;
+                }
+                
+                pdf.addImage(imgData, 'PNG', 20, position + 20, imgWidth, imgHeight);
+                position += imgHeight + 30;
+                
+                // Add section separator
+                if (index < elements.length - 1) {
+                    pdf.setDrawColor(0, 255, 157);
+                    pdf.setLineWidth(1);
+                    pdf.line(20, position, pdf.internal.pageSize.getWidth() - 20, position);
+                    position += 20;
+                }
+            })
+        );
+    });
+    
+    Promise.all(promises).then(() => {
+        // Add footer
+        pdf.setFontSize(10);
+        pdf.setTextColor(150);
+        pdf.text(
+            `Generated by FORGESCAN on ${currentDate}`,
+            pdf.internal.pageSize.getWidth() / 2,
+            pdf.internal.pageSize.getHeight() - 20,
+            { align: 'center' }
+        );
+        
+        // Save PDF
+        pdf.save(`Report_${currentDate}.pdf`);
+        
+        btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download Complete Report';
+        btn.style.pointerEvents = 'auto';
+    });
+}
     </script>
 </body>
 </html>

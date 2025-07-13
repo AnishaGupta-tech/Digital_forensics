@@ -34,12 +34,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem 5%;
-            background: rgba(10, 10, 10, 0.9);
+            background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(10px);
             position: fixed;
             width: 100%;
             z-index: 1000;
             border-bottom: 1px solid rgba(0, 255, 157, 0.1);
+            box-shadow: 0 5px 30px rgba(0,0,0,0.5);
         }
         
         .logo-text {
@@ -49,6 +50,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            letter-spacing: 1px;
         }
         
         .nav-links {
@@ -62,6 +64,7 @@
             font-weight: 500;
             position: relative;
             transition: all 0.3s ease;
+            font-size: 0.95rem;
         }
         
         .nav-links a::after {
@@ -86,20 +89,25 @@
         .nav-cta {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: var(--dark);
-            padding: 0.7rem 2rem;
+            padding: 0.6rem 1.5rem;
             border-radius: 50px;
-            font-weight: 700;
+            font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(0,255,157,0.2);
-            letter-spacing: 1px;
-            font-size: 1.05rem;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+            font-size: 0.95rem;
         }
         
         .nav-cta:hover {
-            transform: translateY(-2px) scale(1.04);
-            box-shadow: 0 0 30px rgba(0,255,157,0.4);
-            opacity: 0.95;
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.5);
+        }
+        
+        /* Report Section */
+        .report-section {
+            padding: 8rem 5% 5rem;
+            background-color: var(--dark);
+            min-height: 100vh;
         }
         
         /* Hero Section */
@@ -559,7 +567,10 @@
             
             .nav-links {
                 gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
             }
+            
             
             .hero {
                 flex-direction: column;
@@ -631,7 +642,17 @@
 </head>
 <body>
     <!-- Modern Navbar -->
-    <nav class="navbar">
+     <nav class="navbar">
+        <div class="logo-text">FORGESCAN</div>
+        <div class="nav-links">
+            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="/index.html#tools"><i class="fas fa-tools"></i> Tools</a>
+            <a href="/case.html"><i class="fas fa-book"></i> Case Study</a>
+            <a href="/analysis.html"><i class="fas fa-search"></i> Analysis</a>
+        </div>
+        <a href="/register" class="nav-cta"><i class="fas fa-user-plus"></i> Register</a>
+    </nav>
+    <!--<nav class="navbar">
         <div class="logo-text">FORGESCAN</div>
         <div class="nav-links">
             <a href="#features">Features</a>
@@ -641,7 +662,7 @@
             
         </div>
         <a href="/register" class="nav-cta">Register</a>
-    </nav>
+    </nav>-->
     
     <!-- Hero Section -->
     <section class="hero">
@@ -848,7 +869,7 @@
                 </div>
                 <h3>Signature Analyzer Pro</h3>
                 <p>Advanced signature verification tool that detects forgeries with 99.1% accuracy using behavioral biometrics and pressure analysis.</p>
-                <a href="signature-analyzer.html" class="btn btn-primary">Explore Tool</a>
+                <!--<a href="signature-analyzer.html" class="btn btn-primary">Explore Tool</a>-->
             </div>
             
             <!-- Tool 2 -->
@@ -858,7 +879,7 @@
                 </div>
                 <h3>Document Integrity Scanner</h3>
                 <p>Detects text alterations, erasures, and page substitutions with spectral analysis and layer detection technology.</p>
-                <a href="document-scanner.html" class="btn btn-primary">Explore Tool</a>
+                <!--<a href="document-scanner.html" class="btn btn-primary">Explore Tool</a>-->
             </div>
             
             <!-- Tool 3 -->
@@ -868,7 +889,7 @@
                 </div>
                 <h3>Metadata Inspector</h3>
                 <p>Extracts and analyzes hidden digital fingerprints including creation tools, modification history, and geolocation data.</p>
-                <a href="metadata-inspector.html" class="btn btn-primary">Explore Tool</a>
+                <!--<a href="metadata-inspector.html" class="btn btn-primary">Explore Tool</a>-->
             </div>
             
             <!-- Tool 4 -->
@@ -878,7 +899,7 @@
                 </div>
                 <h3>Paper Forensics</h3>
                 <p>Identifies the source paper through microscopic analysis of printing patterns and toner characteristics.</p>
-                <a href="printer-forensics.html" class="btn btn-primary">Explore Tool</a>
+                <!--<a href="printer-forensics.html" class="btn btn-primary">Explore Tool</a>-->
             </div>
             
             <!-- Tool 5 
@@ -898,7 +919,7 @@
                 </div>
                 <h3>Digital Document Examiner</h3>
                 <p>Detects digital tampering in PDFs and other electronic documents through metadata and content analysis.</p>
-                <a href="digital-examiner.html" class="btn btn-primary">Explore Tool</a>
+                <!--<a href="digital-examiner.html" class="btn btn-primary">Explore Tool</a>-->
             </div>
         </div>
     </section>
