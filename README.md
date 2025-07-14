@@ -111,7 +111,7 @@ CASEFILE/
 ### 📥 Installation Steps
 ```bash
 # Clone Repository
-https://github.com/AnishaGupta-tech/Digital_forensics.git
+https://github.com/AnishaGupta-tech/FORGESCAN
 cd casefile
 
 # Install Python dependencies
@@ -126,15 +126,8 @@ Open `casefile/index.html` directly in your browser. Ensure the backend is runni
 
 ---
 
-## 📸 Screenshots
+## 📸 Complete Demo
 
-### 🔎 Upload Interface
-![Upload Preview](https://i.imgur.com/B8fbvF3.png)
-
-### 📋 Analysis Report
-![Result Dashboard](https://i.imgur.com/t1E3tkS.png)
-
----
 
 ## 📊 Output & Verdict
 
